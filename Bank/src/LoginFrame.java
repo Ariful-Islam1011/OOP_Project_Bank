@@ -60,9 +60,15 @@ public class LoginFrame extends JFrame {
             "/Icon/avrsat1ap.png"
         };
         ImageIcon logoIcon = null;
-        for (String lp : logoCandidates) {
-            logoIcon = UIUtils.loadScaledIcon(lp, 64, 64);
-            if (logoIcon != null) break;
+        // Prefer the explicit project logo in Icon/ as the bank logo (top-left)
+        java.awt.Image explicitLogo = UIUtils.loadImageFromCandidates(projectDir + "/Icon/avrsat1ap.png");
+        if (explicitLogo != null) {
+            logoIcon = new ImageIcon(explicitLogo.getScaledInstance(64, 64, Image.SCALE_SMOOTH));
+        } else {
+            for (String lp : logoCandidates) {
+                logoIcon = UIUtils.loadScaledIcon(lp, 64, 64);
+                if (logoIcon != null) break;
+            }
         }
         if (logoIcon != null) {
             JLabel logoLabel = new JLabel(logoIcon);
@@ -76,9 +82,15 @@ public class LoginFrame extends JFrame {
         }
         // try setting a background image for the header area (prefer building image candidates)
         ImageIcon bg = null;
-        for (String cand : bgCandidates) {
-            bg = UIUtils.loadScaledIcon(cand, 800, 120);
-            if (bg != null) break;
+        // Prefer the explicit first image in Icon/ as the header background
+        java.awt.Image explicitBg = UIUtils.loadImageFromCandidates(projectDir + "/Icon/image-253831-1741682637.jpg");
+        if (explicitBg != null) {
+            bg = new ImageIcon(explicitBg.getScaledInstance(800, 120, Image.SCALE_SMOOTH));
+        } else {
+            for (String cand : bgCandidates) {
+                bg = UIUtils.loadScaledIcon(cand, 800, 120);
+                if (bg != null) break;
+            }
         }
         if (bg != null) {
             JLabel bgLabel = new JLabel(bg);
