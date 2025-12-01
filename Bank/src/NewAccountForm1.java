@@ -13,6 +13,9 @@ public class NewAccountForm1 extends JFrame {
         setLocationRelativeTo(null);
 
         JPanel p = new JPanel(new GridBagLayout());
+        // use translucent white background so text is readable over page backgrounds
+        p.setOpaque(true);
+        p.setBackground(new Color(255,255,255,220));
         GridBagConstraints c = new GridBagConstraints();
         c.insets = new Insets(4,4,4,4);
         c.fill = GridBagConstraints.HORIZONTAL;
@@ -45,41 +48,57 @@ public class NewAccountForm1 extends JFrame {
         y++; c.gridx = 0; c.gridy = y; p.add(new JLabel("Account Type:"), c);
         c.gridx = 1; JComboBox<String> accType = new JComboBox<>(new String[]{"Savings","Current","Fixed"}); p.add(accType, c);
 
-        // Profile Image upload moved here (replaces Initial Deposit)
+        // Profile Image upload
         y++; c.gridx = 0; c.gridy = y; p.add(new JLabel("Profile Image:"), c);
-        c.gridx = 1; JTextField profileImg = new JTextField(18); profileImg.setEditable(false); p.add(profileImg, c);
-        JButton browseProfile = new JButton("Choose"); c.gridx = 2; p.add(browseProfile, c);
+        c.gridx = 1; JTextField profileImgField = new JTextField(18); profileImgField.setEditable(false);
+        profileImgField.setBackground(new Color(255,255,255,220)); profileImgField.setForeground(Color.BLACK); p.add(profileImgField, c);
+        JButton browseProfileBtn = new JButton("Choose");
+        browseProfileBtn.setForeground(Color.WHITE); browseProfileBtn.setOpaque(false); browseProfileBtn.setContentAreaFilled(false); browseProfileBtn.setBorderPainted(false);
+        c.gridx = 2; p.add(browseProfileBtn, c);
 
-        // removed PIN field from signup form per request
-
+        // Signature Image upload
         y++; c.gridx = 0; c.gridy = y; p.add(new JLabel("Signature Image:"), c);
-        c.gridx = 1; JTextField sigPath = new JTextField(18); sigPath.setEditable(false); p.add(sigPath, c);
-        JButton browse = new JButton("Choose"); c.gridx = 2; p.add(browse, c);
+        c.gridx = 1; JTextField sigPathField = new JTextField(18); sigPathField.setEditable(false);
+        sigPathField.setBackground(new Color(255,255,255,220)); sigPathField.setForeground(Color.BLACK); p.add(sigPathField, c);
+        JButton browseSigBtn = new JButton("Choose");
+        browseSigBtn.setForeground(Color.WHITE); browseSigBtn.setOpaque(false); browseSigBtn.setContentAreaFilled(false); browseSigBtn.setBorderPainted(false);
+        c.gridx = 2; p.add(browseSigBtn, c);
 
-        y++; c.gridx = 0; c.gridy = y; JButton submit = new JButton("Submit"); p.add(submit, c);
-        c.gridx = 1; JButton back = new JButton("Back"); p.add(back, c);
+        // Buttons (solid, visible on translucent panel)
+        y++; c.gridx = 0; c.gridy = y; JButton submitBtn = new JButton("Submit");
+        submitBtn.setForeground(Color.WHITE); submitBtn.setOpaque(true); submitBtn.setContentAreaFilled(true); submitBtn.setBorderPainted(false);
+        submitBtn.setBackground(new Color(0, 120, 215));
+        p.add(submitBtn, c);
+        c.gridx = 1; JButton backBtn = new JButton("Back");
+        backBtn.setForeground(Color.WHITE); backBtn.setOpaque(true); backBtn.setContentAreaFilled(true); backBtn.setBorderPainted(false);
+        backBtn.setBackground(new Color(120, 120, 120));
+        p.add(backBtn, c);
 
-        add(new JScrollPane(p));
+        JScrollPane sp = new JScrollPane(p);
+        sp.setOpaque(false);
+        sp.getViewport().setOpaque(false);
+        add(sp);
 
-        browseProfile.addActionListener((ActionEvent e) -> {
+        // Action listeners
+        browseProfileBtn.addActionListener((ActionEvent e) -> {
             JFileChooser fc = new JFileChooser();
             int r = fc.showOpenDialog(this);
             if (r == JFileChooser.APPROVE_OPTION) {
                 File f = fc.getSelectedFile();
-                profileImg.setText(f.getAbsolutePath());
+                profileImgField.setText(f.getAbsolutePath());
             }
         });
 
-        browse.addActionListener((ActionEvent e) -> {
+        browseSigBtn.addActionListener((ActionEvent e) -> {
             JFileChooser fc = new JFileChooser();
             int r = fc.showOpenDialog(this);
             if (r == JFileChooser.APPROVE_OPTION) {
                 File f = fc.getSelectedFile();
-                sigPath.setText(f.getAbsolutePath());
+                sigPathField.setText(f.getAbsolutePath());
             }
         });
 
-        submit.addActionListener((ActionEvent e) -> {
+        submitBtn.addActionListener((ActionEvent e) -> {
             try {
                 Account a = new Account();
                 a.setName(name.getText().trim());
@@ -92,17 +111,14 @@ public class NewAccountForm1 extends JFrame {
                 a.setNid(nid.getText().trim());
                 a.setAccountType((String)accType.getSelectedItem());
                 a.setPin("");
-                a.setSignaturePath(sigPath.getText().trim());
-                // store profile image path if provided (optional field)
-                if (profileImg.getText() != null && !profileImg.getText().trim().isEmpty()) {
-                    a.setSignaturePath(profileImg.getText().trim());
+                a.setSignaturePath(sigPathField.getText().trim());
+                if (profileImgField.getText() != null && !profileImgField.getText().trim().isEmpty()) {
+                    a.setSignaturePath(profileImgField.getText().trim());
                 }
-                // initial balance set to 0 by default
                 a.setBalance(0.0);
 
                 String accNum = DBHelper.createAccount(a);
                 JOptionPane.showMessageDialog(this, "Account created: " + accNum, "Success", JOptionPane.INFORMATION_MESSAGE);
-                // go back to employee
                 parent.setVisible(true);
                 dispose();
             } catch (Exception ex) {
@@ -111,9 +127,15 @@ public class NewAccountForm1 extends JFrame {
             }
         });
 
-        back.addActionListener(e -> {
+        backBtn.addActionListener(e -> {
             parent.setVisible(true);
             dispose();
+        });
+
+        SwingUtilities.invokeLater(() -> {
+            for (Component comp : p.getComponents()) {
+                if (comp instanceof JLabel) ((JLabel)comp).setForeground(Color.BLACK);
+            }
         });
     }
 }

@@ -15,11 +15,14 @@ public class LoginFrame extends JFrame {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        setLayout(new BorderLayout(10,10));
+        // Use full-window background image (login: curzon.jpeg)
+        setLayout(new BorderLayout());
+        java.awt.Image loginBg = UIUtils.loadImageFromCandidates(System.getProperty("user.dir") + "/Icon/curzon.jpeg");
+        if (loginBg != null) setContentPane(new BackgroundPanel(loginBg));
 
-        // try to load building background (attached image) and logo
         JPanel northPanel = new JPanel(new BorderLayout());
-        northPanel.setBorder(BorderFactory.createEmptyBorder(0,0,6,0));
+        northPanel.setOpaque(false);
+        northPanel.setBorder(BorderFactory.createEmptyBorder(6,12,6,12));
 
         JLabel header = new JLabel("Welcome to Dhaka University Bank", SwingConstants.CENTER);
         header.setOpaque(false);
@@ -45,7 +48,7 @@ public class LoginFrame extends JFrame {
             "/Icon/avrsat1ap.png"
         };
 
-        // Load logo from known absolute paths (try SVG then PNG/JPG fallbacks and classpath)
+        // Load logo from project Icon folder (prefer default_logo.png)
         String[] logoCandidates = new String[] {
             // prefer the project's Icon logo if present
             projectDir + "/Icon/avrsat1ap.png",
@@ -60,8 +63,7 @@ public class LoginFrame extends JFrame {
             "/Icon/avrsat1ap.png"
         };
         ImageIcon logoIcon = null;
-        // Prefer the explicit project logo in Icon/ as the bank logo (top-left)
-        java.awt.Image explicitLogo = UIUtils.loadImageFromCandidates(projectDir + "/Icon/avrsat1ap.png");
+        java.awt.Image explicitLogo = UIUtils.loadImageFromCandidates(projectDir + "/Icon/default_logo.png", projectDir + "/Icon/avrsat1ap.png");
         if (explicitLogo != null) {
             logoIcon = new ImageIcon(explicitLogo.getScaledInstance(64, 64, Image.SCALE_SMOOTH));
         } else {
@@ -92,22 +94,11 @@ public class LoginFrame extends JFrame {
                 if (bg != null) break;
             }
         }
-        if (bg != null) {
-            JLabel bgLabel = new JLabel(bg);
-            bgLabel.setLayout(new BorderLayout());
-            bgLabel.add(header, BorderLayout.CENTER);
-            northPanel.add(bgLabel, BorderLayout.CENTER);
-        } else {
-            // fallback solid color
-            JPanel colored = new JPanel(new BorderLayout());
-            colored.setBackground(new Color(0x2E8B57));
-            colored.add(header, BorderLayout.CENTER);
-            northPanel.add(colored, BorderLayout.CENTER);
-        }
-
+        northPanel.add(header, BorderLayout.CENTER);
         add(northPanel, BorderLayout.NORTH);
 
         JPanel p = new JPanel(new GridBagLayout());
+        p.setOpaque(false);
         GridBagConstraints c = new GridBagConstraints();
         c.insets = new Insets(8,8,8,8);
         c.gridx = 0; c.gridy = 0; c.anchor = GridBagConstraints.EAST;
@@ -118,8 +109,10 @@ public class LoginFrame extends JFrame {
         c.gridx = 0; c.gridy = 1; p.add(new JLabel("Bank Number:"), c);
         c.gridx = 1; JTextField bankNum = new JTextField(15); p.add(bankNum, c);
 
-        c.gridx = 0; c.gridy = 2; JButton login = new JButton("Login as Admin"); p.add(login, c);
-        c.gridx = 1; JButton exit = new JButton("Exit"); p.add(exit, c);
+        c.gridx = 0; c.gridy = 2; JButton login = new JButton("Login as Admin");
+        login.setForeground(Color.WHITE); login.setOpaque(false); login.setContentAreaFilled(false); login.setBorderPainted(false); login.setFont(login.getFont().deriveFont(Font.BOLD, 12f));
+        p.add(login, c);
+        c.gridx = 1; JButton exit = new JButton("Exit"); exit.setForeground(Color.WHITE); exit.setOpaque(false); exit.setContentAreaFilled(false); exit.setBorderPainted(false); exit.setFont(exit.getFont().deriveFont(Font.BOLD, 12f)); p.add(exit, c);
 
         add(p, BorderLayout.CENTER);
 

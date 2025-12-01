@@ -181,6 +181,24 @@ public class DBHelper {
         return list;
     }
 
+    public static java.util.List<Account> getAllAccounts() throws SQLException {
+        java.util.List<Account> list = new java.util.ArrayList<>();
+        String sql = "SELECT * FROM accounts ORDER BY id DESC";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Account a = new Account();
+                    a.setAccountNumber(rs.getString("account_number"));
+                    a.setName(rs.getString("name"));
+                    a.setBalance(rs.getDouble("balance"));
+                    a.setAccountType(rs.getString("account_type"));
+                    list.add(a);
+                }
+            }
+        }
+        return list;
+    }
+
     public static void insertTransaction(String accNum, String type, double amount, double balance) throws SQLException {
         String now = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
         String sql = "INSERT INTO transactions(account_number,type,amount,balance,timestamp) VALUES(?,?,?,?,?)";
