@@ -27,26 +27,37 @@ public class LoginFrame extends JFrame {
         header.setFont(header.getFont().deriveFont(Font.BOLD, 18f));
         header.setBorder(BorderFactory.createEmptyBorder(12,12,12,12));
 
-        // Preferred background image candidates (please copy the attached building image to one of these paths
-        // if it isn't already on your machine):
-        //  - ~/Downloads/du_building.jpg
-        //  - ~/Downloads/dhaka_building.jpg
-        //  - ~/Downloads/DhakaUniversity_building.jpg
-        // The code will also attempt the classpath resource `/images/login_bg.jpg`.
+        // Preferred background image candidates. Also try the project's `Icon/` folder so
+        // the two images included in the repository can be used as the header background.
+        String projectDir = System.getProperty("user.dir");
         String[] bgCandidates = new String[] {
+            // project Icon folder (preferred)
+            projectDir + "/Icon/image-253831-1741682637.jpg",
+            projectDir + "/Icon/avrsat1ap.png",
+            // user Downloads fallbacks
             System.getProperty("user.home") + "/Downloads/du_building.jpg",
             System.getProperty("user.home") + "/Downloads/dhaka_building.jpg",
             System.getProperty("user.home") + "/Downloads/DhakaUniversity_building.jpg",
-            "/images/login_bg.jpg"
+            // classpath resource fallback
+            "/images/login_bg.jpg",
+            // classpath Icon resource fallback
+            "/Icon/image-253831-1741682637.jpg",
+            "/Icon/avrsat1ap.png"
         };
 
         // Load logo from known absolute paths (try SVG then PNG/JPG fallbacks and classpath)
         String[] logoCandidates = new String[] {
+            // prefer the project's Icon logo if present
+            projectDir + "/Icon/avrsat1ap.png",
+            projectDir + "/Icon/image-253831-1741682637.jpg",
+            // user Downloads fallbacks
             System.getProperty("user.home") + "/Downloads/Dhaka_University_logo.svg",
             System.getProperty("user.home") + "/Downloads/Dhaka_University_logo.png",
             System.getProperty("user.home") + "/Downloads/Dhaka_University_logo.jpg",
+            // classpath fallbacks
             "/images/logo.png",
-            "/images/logo.jpg"
+            "/images/logo.jpg",
+            "/Icon/avrsat1ap.png"
         };
         ImageIcon logoIcon = null;
         for (String lp : logoCandidates) {
