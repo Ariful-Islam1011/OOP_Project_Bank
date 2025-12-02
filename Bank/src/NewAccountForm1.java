@@ -112,8 +112,9 @@ public class NewAccountForm1 extends JFrame {
                 a.setAccountType((String)accType.getSelectedItem());
                 a.setPin("");
                 a.setSignaturePath(sigPathField.getText().trim());
+                // store profile image path separately (if provided)
                 if (profileImgField.getText() != null && !profileImgField.getText().trim().isEmpty()) {
-                    a.setSignaturePath(profileImgField.getText().trim());
+                    a.setProfileImagePath(profileImgField.getText().trim());
                 }
                 a.setBalance(0.0);
 

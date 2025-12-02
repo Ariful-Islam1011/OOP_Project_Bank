@@ -42,7 +42,7 @@ public class DBHelper {
                         + "id INT PRIMARY KEY AUTO_INCREMENT,"
                         + "account_number VARCHAR(64) UNIQUE,"
                         + "name VARCHAR(255), father VARCHAR(255), mother VARCHAR(255), dob VARCHAR(50), gender VARCHAR(20), mobile VARCHAR(50), address VARCHAR(512), nid VARCHAR(100),"
-                        + "account_type VARCHAR(100), pin VARCHAR(100), signature_path VARCHAR(512), balance DOUBLE DEFAULT 0, created_at DATETIME"
+                        + "account_type VARCHAR(100), pin VARCHAR(100), signature_path VARCHAR(512), profile_image_path VARCHAR(512), balance DOUBLE DEFAULT 0, created_at DATETIME"
                         + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
 
                 transactions = "CREATE TABLE IF NOT EXISTS transactions ("
@@ -51,11 +51,11 @@ public class DBHelper {
                         + ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
             } else {
                 accounts = "CREATE TABLE IF NOT EXISTS accounts ("
-                        + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
-                        + "account_number TEXT UNIQUE,"
-                        + "name TEXT, father TEXT, mother TEXT, dob TEXT, gender TEXT, mobile TEXT, address TEXT, nid TEXT,"
-                        + "account_type TEXT, pin TEXT, signature_path TEXT, balance REAL DEFAULT 0, created_at TEXT"
-                        + ")";
+                    + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    + "account_number TEXT UNIQUE,"
+                    + "name TEXT, father TEXT, mother TEXT, dob TEXT, gender TEXT, mobile TEXT, address TEXT, nid TEXT,"
+                    + "account_type TEXT, pin TEXT, signature_path TEXT, profile_image_path TEXT, balance REAL DEFAULT 0, created_at TEXT"
+                    + ")";
 
                 transactions = "CREATE TABLE IF NOT EXISTS transactions ("
                         + "id INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -72,8 +72,8 @@ public class DBHelper {
         a.setAccountNumber(accNum);
         String now = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 
-        String sql = "INSERT INTO accounts(account_number,name,father,mother,dob,gender,mobile,address,nid,account_type,pin,signature_path,balance,created_at)"
-                + " VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        String sql = "INSERT INTO accounts(account_number,name,father,mother,dob,gender,mobile,address,nid,account_type,pin,signature_path,profile_image_path,balance,created_at)"
+            + " VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, a.getAccountNumber());
             ps.setString(2, a.getName());
@@ -87,8 +87,9 @@ public class DBHelper {
             ps.setString(10, a.getAccountType());
             ps.setString(11, a.getPin());
             ps.setString(12, a.getSignaturePath());
-            ps.setDouble(13, a.getBalance());
-            ps.setString(14, now);
+            ps.setString(13, a.getProfileImagePath());
+            ps.setDouble(14, a.getBalance());
+            ps.setString(15, now);
             ps.executeUpdate();
         }
         if (a.getBalance() > 0) {
@@ -116,6 +117,9 @@ public class DBHelper {
                     a.setAccountType(rs.getString("account_type"));
                     a.setPin(rs.getString("pin"));
                     a.setSignaturePath(rs.getString("signature_path"));
+                    try {
+                        a.setProfileImagePath(rs.getString("profile_image_path"));
+                    } catch (Exception ignore) { }
                     a.setBalance(rs.getDouble("balance"));
                     return a;
                 }
@@ -252,6 +256,27 @@ public class DBHelper {
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, newPin);
             ps.setString(2, accNum);
+            return ps.executeUpdate() > 0;
+        }
+    }
+
+    public static boolean updateAccount(Account a) throws SQLException {
+        String sql = "UPDATE accounts SET name=?, father=?, mother=?, dob=?, gender=?, mobile=?, address=?, nid=?, account_type=?, pin=?, signature_path=?, profile_image_path=?, balance=? WHERE account_number = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, a.getName());
+            ps.setString(2, a.getFather());
+            ps.setString(3, a.getMother());
+            ps.setString(4, a.getDob());
+            ps.setString(5, a.getGender());
+            ps.setString(6, a.getMobile());
+            ps.setString(7, a.getAddress());
+            ps.setString(8, a.getNid());
+            ps.setString(9, a.getAccountType());
+            ps.setString(10, a.getPin());
+            ps.setString(11, a.getSignaturePath());
+            ps.setString(12, a.getProfileImagePath());
+            ps.setDouble(13, a.getBalance());
+            ps.setString(14, a.getAccountNumber());
             return ps.executeUpdate() > 0;
         }
     }

@@ -11,6 +11,7 @@ public class Account {
     private String accountType;
     private String pin;
     private String signaturePath;
+    private String profileImagePath;
     private double balance;
 
     public String getAccountNumber() { return accountNumber; }
@@ -37,6 +38,8 @@ public class Account {
     public void setPin(String pin) { this.pin = pin; }
     public String getSignaturePath() { return signaturePath; }
     public void setSignaturePath(String signaturePath) { this.signaturePath = signaturePath; }
+    public String getProfileImagePath() { return profileImagePath; }
+    public void setProfileImagePath(String profileImagePath) { this.profileImagePath = profileImagePath; }
     public double getBalance() { return balance; }
     public void setBalance(double balance) { this.balance = balance; }
 }

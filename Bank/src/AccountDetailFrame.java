@@ -31,10 +31,9 @@ public class AccountDetailFrame extends JFrame {
         }
         pd.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
 
-        // create an inner content panel with a semi-opaque dark background
-        JPanel content = new JPanel(new GridBagLayout());
-        content.setOpaque(true);
-        content.setBackground(new Color(0,0,0,180));
+        // create an inner content panel — use a translucent rounded overlay so background shows through
+        TranslucentPanel content = new TranslucentPanel(new Color(0,0,0,120), 18, 18);
+        content.setLayout(new GridBagLayout());
         GridBagConstraints gc = new GridBagConstraints();
         gc.insets = new Insets(6,6,6,6);
         gc.anchor = GridBagConstraints.WEST;
@@ -68,10 +67,13 @@ public class AccountDetailFrame extends JFrame {
             } catch (Exception ex) { gc.gridx = 0; gc.gridy++; content.add(new JLabel("Signature:"), gc); gc.gridx = 1; content.add(new JLabel("(failed to load)"), gc); }
         }
 
-        // show small logo if available (treat as profile thumbnail)
-        ImageIcon logo = UIUtils.loadScaledIcon(System.getProperty("user.dir") + "/Icon/default_logo.png", 120, 60);
-        if (logo != null) {
-            gc.gridx = 0; gc.gridy++; content.add(new JLabel("Profile:"), gc); gc.gridx = 1; content.add(new JLabel(logo), gc);
+        // show profile photo if provided
+        if (account.getProfileImagePath() != null && !account.getProfileImagePath().isEmpty()) {
+            try {
+                ImageIcon photoIcon = new ImageIcon(account.getProfileImagePath());
+                Image pimg = photoIcon.getImage().getScaledInstance(120, 120, Image.SCALE_SMOOTH);
+                gc.gridx = 0; gc.gridy++; content.add(new JLabel("Photo:"), gc); gc.gridx = 1; content.add(new JLabel(new ImageIcon(pimg)), gc);
+            } catch (Exception ex) { /* fall back to no photo */ }
         }
 
         // ensure all labels in content are white for readability
@@ -86,15 +88,20 @@ public class AccountDetailFrame extends JFrame {
         pcons.gridx = 0; pcons.gridy = 0; pcons.weightx = 1; pcons.weighty = 1; pcons.fill = GridBagConstraints.BOTH;
         pd.add(content, pcons);
 
-        tabs.addTab("Profile", new JScrollPane(pd));
+        JScrollPane profileSp = new JScrollPane(pd);
+        // keep the scroll viewport transparent so the background shows, but the content panel itself remains semi-opaque
+        profileSp.setOpaque(false);
+        profileSp.getViewport().setOpaque(false);
+        tabs.addTab("Profile", profileSp);
 
         // Transactions panel
-        // prefer requested `tsc.jpg` for transactions background; fall back to Doyelcottor
-        java.awt.Image txBg = UIUtils.loadImageFromCandidates(System.getProperty("user.dir") + "/Icon/tsc.jpg", System.getProperty("user.dir") + "/Icon/Doyelcottor.jpg");
+        // prefer requested `Hall.jpg` for transactions background; fall back to `tsc.jpg` then `Doyelcottor.jpg`
+        java.awt.Image txBg = UIUtils.loadImageFromCandidates(System.getProperty("user.dir") + "/Icon/Hall.jpg", System.getProperty("user.dir") + "/Icon/tsc.jpg", System.getProperty("user.dir") + "/Icon/Doyelcottor.jpg");
         JPanel tx = txBg != null ? new BackgroundPanel(txBg) : new JPanel(new BorderLayout());
         JPanel actions = new JPanel(new FlowLayout(FlowLayout.CENTER,10,10)); actions.setOpaque(false);
-        JButton dep = new JButton("Deposit"); dep.setForeground(Color.WHITE); dep.setOpaque(true); dep.setBackground(new Color(0,0,0,170)); dep.setContentAreaFilled(true); dep.setBorderPainted(false);
-        JButton wit = new JButton("Withdraw"); wit.setForeground(Color.WHITE); wit.setOpaque(true); wit.setBackground(new Color(0,0,0,170)); wit.setContentAreaFilled(true); wit.setBorderPainted(false);
+        Color actionBtnBg = new Color(0,0,0,120);
+        JButton dep = new JButton("Deposit"); dep.setForeground(Color.WHITE); dep.setOpaque(true); dep.setBackground(actionBtnBg); dep.setContentAreaFilled(true); dep.setBorderPainted(false);
+        JButton wit = new JButton("Withdraw"); wit.setForeground(Color.WHITE); wit.setOpaque(true); wit.setBackground(actionBtnBg); wit.setContentAreaFilled(true); wit.setBorderPainted(false);
         actions.add(dep); actions.add(wit);
 
         JTextArea statement = new JTextArea();
@@ -105,8 +112,13 @@ public class AccountDetailFrame extends JFrame {
         JScrollPane statementSp = new JScrollPane(statement);
         statementSp.setOpaque(false);
         statementSp.getViewport().setOpaque(false);
-        tx.add(actions, BorderLayout.NORTH);
-        tx.add(statementSp, BorderLayout.CENTER);
+        // Put actions and statement into a semi-opaque content panel so they are readable on top of background
+        TranslucentPanel txContent = new TranslucentPanel(new Color(0,0,0,120), 18, 18);
+        txContent.setLayout(new BorderLayout());
+        txContent.add(actions, BorderLayout.NORTH);
+        txContent.add(statementSp, BorderLayout.CENTER);
+        // add content into the transactions container (which may be a BackgroundPanel)
+        tx.add(txContent, BorderLayout.CENTER);
 
         dep.addActionListener(e -> {
             try {
@@ -139,7 +151,7 @@ public class AccountDetailFrame extends JFrame {
         });
 
         // add Balance button into transactions actions (styled to merge with background)
-        JButton balBtn = new JButton("Balance"); balBtn.setForeground(Color.WHITE); balBtn.setOpaque(true); balBtn.setBackground(new Color(0,0,0,170)); balBtn.setContentAreaFilled(true); balBtn.setBorderPainted(false);
+        JButton balBtn = new JButton("Balance"); balBtn.setForeground(Color.WHITE); balBtn.setOpaque(true); balBtn.setBackground(actionBtnBg); balBtn.setContentAreaFilled(true); balBtn.setBorderPainted(false);
         balBtn.setFocusPainted(false);
         actions.add(balBtn);
         tabs.addTab("Transactions", tx);
@@ -157,19 +169,46 @@ public class AccountDetailFrame extends JFrame {
         add(tabs, BorderLayout.CENTER);
 
         JPanel bottom = new JPanel();
-        bottom.setOpaque(false);
+        bottom.setOpaque(true);
+        bottom.setBackground(new Color(0,0,0,160));
+        JButton editBtn = new JButton("Edit");
+        editBtn.setForeground(Color.WHITE);
+        editBtn.setOpaque(true);
+        // make Edit button color match the Back button color (semi-opaque dark)
+        Color backBtnBg = new Color(0,0,0,120);
+        editBtn.setBackground(backBtnBg);
+        editBtn.setBorderPainted(false);
+        editBtn.setPreferredSize(new Dimension(110,36));
+        editBtn.setFont(editBtn.getFont().deriveFont(Font.BOLD, 13f));
         JButton back = new JButton("Back");
         back.setForeground(Color.WHITE);
         back.setOpaque(true);
-        back.setBackground(new Color(0,0,0,170));
+        back.setBackground(new Color(0,0,0,120));
         back.setContentAreaFilled(true);
         back.setBorderPainted(false);
+        bottom.add(editBtn);
         bottom.add(back);
         add(bottom, BorderLayout.SOUTH);
 
         back.addActionListener(e -> {
             parent.setVisible(true);
             dispose();
+        });
+
+        editBtn.addActionListener(e -> {
+            EditAccountDialog dlg = new EditAccountDialog(this, account);
+            dlg.setVisible(true);
+            if (dlg.isSaved()) {
+                // use the updated Account from the dialog to refresh the UI without relying on DB
+                Account updated = dlg.getAccount();
+                if (updated != null) {
+                    account = updated;
+                }
+                // rebuild the frame from the in-memory account so UI updates even if DB failed
+                AccountDetailFrame f = new AccountDetailFrame(parent, account);
+                f.setVisible(true);
+                dispose();
+            }
         });
 
         // load statement initially
@@ -185,5 +224,92 @@ public class AccountDetailFrame extends JFrame {
             }
             statement.setText(sb.toString());
         } catch (Exception ex) { ex.printStackTrace(); }
+    }
+
+    // simple modal edit dialog for account profile editing
+    private static class EditAccountDialog extends JDialog {
+        private boolean saved = false;
+        private final Account accountRef;
+        public EditAccountDialog(JFrame parent, Account a) {
+            super(parent, "Edit Account - " + a.getAccountNumber(), true);
+            setSize(500, 520);
+            setLocationRelativeTo(parent);
+            JPanel p = new JPanel(new GridBagLayout());
+            p.setBorder(BorderFactory.createEmptyBorder(8,8,8,8));
+            GridBagConstraints c = new GridBagConstraints();
+            c.insets = new Insets(6,6,6,6);
+            c.fill = GridBagConstraints.HORIZONTAL;
+
+            int y = 0;
+            y++; c.gridx = 0; c.gridy = y; p.add(new JLabel("Name:"), c); c.gridx = 1; JTextField name = new JTextField(a.getName(), 20); p.add(name, c);
+            y++; c.gridx = 0; c.gridy = y; p.add(new JLabel("Father:"), c); c.gridx = 1; JTextField father = new JTextField(a.getFather(), 20); p.add(father, c);
+            y++; c.gridx = 0; c.gridy = y; p.add(new JLabel("Mother:"), c); c.gridx = 1; JTextField mother = new JTextField(a.getMother(), 20); p.add(mother, c);
+            y++; c.gridx = 0; c.gridy = y; p.add(new JLabel("DOB:"), c); c.gridx = 1; JTextField dob = new JTextField(a.getDob(), 12); p.add(dob, c);
+            y++; c.gridx = 0; c.gridy = y; p.add(new JLabel("Gender:"), c); c.gridx = 1; JComboBox<String> gender = new JComboBox<>(new String[]{"Male","Female","Other"}); gender.setSelectedItem(a.getGender()); p.add(gender, c);
+            y++; c.gridx = 0; c.gridy = y; p.add(new JLabel("Mobile:"), c); c.gridx = 1; JTextField mobile = new JTextField(a.getMobile(), 12); p.add(mobile, c);
+            y++; c.gridx = 0; c.gridy = y; p.add(new JLabel("Address:"), c); c.gridx = 1; JTextField address = new JTextField(a.getAddress(), 20); p.add(address, c);
+            y++; c.gridx = 0; c.gridy = y; p.add(new JLabel("NID:"), c); c.gridx = 1; JTextField nid = new JTextField(a.getNid(), 20); p.add(nid, c);
+            y++; c.gridx = 0; c.gridy = y; p.add(new JLabel("Account Type:"), c); c.gridx = 1; JComboBox<String> accType = new JComboBox<>(new String[]{"Savings","Current","Fixed"}); accType.setSelectedItem(a.getAccountType()); p.add(accType, c);
+            // hold a reference to the passed account so we can return it even if DB fails
+            this.accountRef = a;
+
+            y++; c.gridx = 0; c.gridy = y; p.add(new JLabel("Signature Path:"), c); c.gridx = 1; JTextField sig = new JTextField(a.getSignaturePath(), 18); sig.setEditable(false); p.add(sig, c); JButton sigBtn = new JButton("Choose"); c.gridx = 2; p.add(sigBtn, c);
+            y++; c.gridx = 0; c.gridy = y; p.add(new JLabel("Profile Photo:"), c); c.gridx = 1; JTextField photo = new JTextField(a.getProfileImagePath(), 18); photo.setEditable(false); p.add(photo, c); JButton photoBtn = new JButton("Choose"); c.gridx = 2; p.add(photoBtn, c);
+
+            JPanel btns = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+            JButton save = new JButton("Save"); JButton cancel = new JButton("Cancel");
+            btns.add(save); btns.add(cancel);
+
+            save.addActionListener(e -> {
+                try {
+                    // update the in-memory account object first
+                    a.setName(name.getText().trim());
+                    a.setFather(father.getText().trim());
+                    a.setMother(mother.getText().trim());
+                    a.setDob(dob.getText().trim());
+                    a.setGender((String)gender.getSelectedItem());
+                    a.setMobile(mobile.getText().trim());
+                    a.setAddress(address.getText().trim());
+                    a.setNid(nid.getText().trim());
+                    a.setAccountType((String)accType.getSelectedItem());
+                    a.setSignaturePath(sig.getText().trim());
+                    a.setProfileImagePath(photo.getText().trim());
+                    // try to persist; if DB is unavailable, inform the user but keep the changes in-memory
+                    try {
+                        DBHelper.updateAccount(a);
+                        } catch (java.sql.SQLException sqle) {
+                        sqle.printStackTrace();
+                        JOptionPane.showMessageDialog(EditAccountDialog.this, "Saved locally but failed to persist to DB: " + sqle.getMessage(), "Warning", JOptionPane.WARNING_MESSAGE);
+                    }
+                    saved = true;
+                    dispose();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(EditAccountDialog.this, "Failed to save: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            });
+
+            cancel.addActionListener(e -> dispose());
+
+            sigBtn.addActionListener(e -> {
+                JFileChooser fc = new JFileChooser();
+                if (fc.showOpenDialog(EditAccountDialog.this) == JFileChooser.APPROVE_OPTION) {
+                    sig.setText(fc.getSelectedFile().getAbsolutePath());
+                }
+            });
+            photoBtn.addActionListener(e -> {
+                JFileChooser fc = new JFileChooser();
+                if (fc.showOpenDialog(EditAccountDialog.this) == JFileChooser.APPROVE_OPTION) {
+                    photo.setText(fc.getSelectedFile().getAbsolutePath());
+                }
+            });
+
+            getContentPane().setLayout(new BorderLayout());
+            getContentPane().add(new JScrollPane(p), BorderLayout.CENTER);
+            getContentPane().add(btns, BorderLayout.SOUTH);
+        }
+
+        public boolean isSaved() { return saved; }
+        public Account getAccount() { return accountRef; }
     }
 }

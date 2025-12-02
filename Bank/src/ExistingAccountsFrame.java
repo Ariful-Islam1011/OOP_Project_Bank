@@ -74,13 +74,18 @@ public class ExistingAccountsFrame extends JFrame {
 
         JPanel bottom = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         bottom.setOpaque(false);
-        JButton open = new JButton("Open"); open.setForeground(Color.WHITE); open.setOpaque(true); open.setBackground(new Color(0,0,0,170)); open.setContentAreaFilled(true); open.setBorderPainted(false); open.setFocusPainted(false);
-        JButton back = new JButton("Back"); back.setForeground(Color.WHITE); back.setOpaque(true); back.setBackground(new Color(0,0,0,170)); back.setContentAreaFilled(true); back.setBorderPainted(false); back.setFocusPainted(false);
+        JButton open = new JButton("Open"); open.setForeground(Color.WHITE); open.setOpaque(true); open.setBackground(new Color(0,0,0,120)); open.setContentAreaFilled(true); open.setBorderPainted(false); open.setFocusPainted(false);
+        JButton back = new JButton("Back"); back.setForeground(Color.WHITE); back.setOpaque(true); back.setBackground(new Color(0,0,0,120)); back.setContentAreaFilled(true); back.setBorderPainted(false); back.setFocusPainted(false);
         bottom.add(open); bottom.add(back);
 
-        p.add(top, BorderLayout.NORTH);
-        p.add(sp, BorderLayout.CENTER);
-        p.add(bottom, BorderLayout.SOUTH);
+        // place main content into a translucent overlay so background image is visible clearly
+        TranslucentPanel wrapper = new TranslucentPanel(new Color(0,0,0,120), 18, 18);
+        wrapper.setLayout(new BorderLayout());
+        top.setOpaque(false);
+        wrapper.add(top, BorderLayout.NORTH);
+        wrapper.add(sp, BorderLayout.CENTER);
+        wrapper.add(bottom, BorderLayout.SOUTH);
+        p.add(wrapper, BorderLayout.CENTER);
 
         // populate list initially with all accounts so Open works without a prior search
         try {

@@ -11,8 +11,8 @@ public class EmployeeFrame extends JFrame {
         setLayout(new BorderLayout(10,10));
 
         String projectDir = System.getProperty("user.dir");
-        // prefer requested image `cse.jpg`, fall back to Oporajeyo or Science_Library
-        java.awt.Image bg = UIUtils.loadImageFromCandidates(projectDir + "/Icon/cse.jpg", projectDir + "/Icon/Oporajeyo.jpg", projectDir + "/Icon/Science_Library.jpg");
+        // prefer requested image `cse.jpg`, fall back to oprajeyo / Oporajeyo or Science_Library
+        java.awt.Image bg = UIUtils.loadImageFromCandidates(projectDir + "/Icon/cse.jpg", projectDir + "/Icon/oprajeyo.jpg", projectDir + "/Icon/Oporajeyo.jpg", projectDir + "/Icon/Science_Library.jpg");
         if (bg != null) setContentPane(new BackgroundPanel(bg));
 
         // show compact logo and title
@@ -25,7 +25,8 @@ public class EmployeeFrame extends JFrame {
         title.setFont(title.getFont().deriveFont(Font.BOLD, 22f));
         title.setForeground(Color.WHITE);
         north.add(title, BorderLayout.CENTER);
-        add(north, BorderLayout.NORTH);
+        // if a background is set earlier, place north + center into a semi-opaque content panel
+        // otherwise add north directly to frame
 
         // center - three minimalist transparent options (text-only style)
         JPanel center = new JPanel();
@@ -46,7 +47,7 @@ public class EmployeeFrame extends JFrame {
             b.setForeground(Color.WHITE);
             // give each option a semi-opaque dark background so it's visible on any image
             b.setOpaque(true);
-            b.setBackground(new Color(0,0,0,150));
+            b.setBackground(new Color(0,0,0,120));
             b.setContentAreaFilled(true);
             b.setBorderPainted(false);
             b.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -56,7 +57,21 @@ public class EmployeeFrame extends JFrame {
         }
         // intentionally do not add bottom glue so options sit lower on the panel
 
-        add(center, BorderLayout.CENTER);
+        // now add panels into the frame or into a content wrapper when a bg exists
+        java.awt.Container cp = getContentPane();
+        if (cp instanceof BackgroundPanel) {
+            TranslucentPanel content = new TranslucentPanel(new Color(0,0,0,120), 18, 18);
+            content.setLayout(new BorderLayout());
+            // keep inner panels transparent so the translucent overlay shows the bg
+            north.setOpaque(false);
+            center.setOpaque(false);
+            content.add(north, BorderLayout.NORTH);
+            content.add(center, BorderLayout.CENTER);
+            add(content, BorderLayout.CENTER);
+        } else {
+            add(north, BorderLayout.NORTH);
+            add(center, BorderLayout.CENTER);
+        }
 
         newAcc.addActionListener(e -> {
             new NewAccountForm1(this).setVisible(true);

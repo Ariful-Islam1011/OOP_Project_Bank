@@ -27,7 +27,21 @@ public class LoginFrame extends JFrame {
         JLabel header = new JLabel("Welcome to Dhaka University Bank", SwingConstants.CENTER);
         header.setOpaque(false);
         header.setForeground(Color.WHITE);
-        header.setFont(header.getFont().deriveFont(Font.BOLD, 18f));
+        header.setFont(header.getFont().deriveFont(Font.BOLD, 28f));
+        // simple slideshow of header messages
+        String[] slides = new String[] {
+            "Welcome to Dhaka University Bank",
+            "Secure. Reliable. For Everyone.",
+            "Banking Services for DU Community",
+            "Visit our branches or use the app"
+        };
+        final int[] idx = {0};
+        javax.swing.Timer slideTimer = new javax.swing.Timer(2500, ev -> {
+            idx[0] = (idx[0] + 1) % slides.length;
+            header.setText(slides[idx[0]]);
+        });
+        slideTimer.setInitialDelay(1200);
+        slideTimer.start();
         header.setBorder(BorderFactory.createEmptyBorder(12,12,12,12));
 
         // Preferred background image candidates. Also try the project's `Icon/` folder so
