@@ -1,157 +1,257 @@
-# Dhaka University Bank - Java + SQLite (minimal)
+# 🏦 Dhaka University Bank Management System
 
-This project is a simple desktop bank management prototype implemented in Java (Swing) and SQLite.
+A professional desktop banking application built with Java Swing and SQLite, featuring ATM card management, account operations, and secure admin controls.
 
-Files of interest (in `src/`):
-- `App.java` - application launcher (starts `LoginFrame` and initializes DB)
-- `DBHelper.java` - SQLite DB initialization and helper methods
-- `Account.java`, `TransactionRecord.java` - data models
-- `LoginFrame.java` - welcome + admin login
-- `EmployeeFrame.java` - employee dashboard
-- `NewAccountForm1.java` - signup form v1 (creates accounts)
-- `ExistingAccountsFrame.java` - browse/search accounts
-- `AccountDetailFrame.java` - personal details, transactions, deposit/withdraw, change PIN
+## 🚀 Features
 
-Quick build & run (macOS / zsh):
+### Customer Features
+- **Account Management**
+  - Create and manage bank accounts
+  - View transaction history
+  - Check account balance
+  - Update personal information
+  - Change PIN
+  - Deposit/Withdraw funds
 
-1) Download `sqlite-jdbc` (one-time). From terminal:
+### ATM Features
+- ATM Card Management
+- Issue new ATM cards
+- View existing cards
+- ATM transactions (with PIN verification)
+- Balance inquiry
 
-```bash
-cd ~/Downloads
-curl -L -o sqlite-jdbc.jar https://repo1.maven.org/maven2/org/xerial/sqlite-jdbc/3.42.0.0/sqlite-jdbc-3.42.0.0.jar
-```
+### Admin Features
+- Employee Dashboard
+- Customer Service Portal
+- Account verification
+- Transaction monitoring
 
-2) Compile the sources:
+## 🛠️ Technology Stack
 
-```bash
-cd /Users/md.arifulislam/Documents/Project/Bank
-mkdir -p out
-javac -d out src/*.java
-```
+| Technology | Version | Purpose |
+|-----------|---------|---------|
+| Java | 11+ | Core application |
+| Swing | Built-in | GUI Framework |
+| SQLite | 3.42.0.0 | Database (default) |
+| MySQL | 8.0.33 | Optional database |
+| Maven | 3.9+ | Build automation |
 
-3) Run the app (include the SQLite JDBC jar on classpath at runtime):
+## 📋 Prerequisites
 
-```bash
-cd /Users/md.arifulislam/Documents/Project/Bank
-java -cp "out:~/Downloads/sqlite-jdbc.jar" App
-```
+- **Java**: JDK 11 or higher
+- **Maven**: 3.6 or higher
+- **Git**: For version control
+- **Database**: SQLite (included) or MySQL (optional)
 
-Notes and next steps:
-- Default admin credentials are `admin123` and bank number `DU-BANK-001` in `LoginFrame.java`.
-- When creating an account you can select a signature image path; the UI displays it later but does not copy the file. Consider copying to a project `signatures/` folder if you want centralized storage.
-- PINs are stored in plain text (for prototype). For production you must hash and salt PINs.
-- The signup form you mentioned (you will provide 3 variants) is currently implemented as `NewAccountForm1.java`. I can add the other two forms and a switcher to the UI when you provide them.
-- `bank.db` will be created in the project root on first run.
+## 🔧 Installation & Setup
 
-MySQL usage:
-
-If you prefer to use MySQL instead of the bundled SQLite file, follow these steps:
-
-- Install MySQL server (macOS: `brew install mysql` or download from dev.mysql.com).
-- Create a database and user, or use the provided `create_tables_mysql.sql` to create schema after creating the DB (see file in project root `Bank/create_tables_mysql.sql`).
-- Add MySQL Connector/J (the JDBC driver) to the project classpath. Either:
-	- Add the JAR in IntelliJ: `File -> Project Structure -> Libraries -> + -> select mysql-connector-j-<version>.jar`.
-	- Or place the JAR into the `lib/` folder and include it on the classpath when running from terminal.
-- Edit `src/DBHelper.java` to set `USE_MYSQL = true` and update `MYSQL_USER`, `MYSQL_PASS`, `MYSQL_HOST`, `MYSQL_PORT`, `MYSQL_DB` to match your environment.
-
-Example: create DB and run SQL (from terminal):
+### 1. Clone the Repository
 
 ```bash
-# create DB (replace <user> with your mysql admin user)
-mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS bankdb CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
-# load tables
-mysql -u root -p bankdb < Bank/create_tables_mysql.sql
+git clone https://github.com/Ariful-Islam1011/OOP_Project_Bank.git
+cd OOP_Project_Bank
 ```
 
-Running in IntelliJ:
+### 2. Install Dependencies
 
-- Make sure the MySQL Connector/J jar is added to Project Libraries (Project Structure -> Libraries).
-- Build the project (Build -> Build Project) and run the `App` main class.
-- If you get "driver not found" errors, double-check that the Connector/J jar is on the runtime classpath of the run configuration.
+Maven will automatically download required dependencies from `pom.xml`:
+- MySQL Connector/J
+- SQLite JDBC
 
-If you want, I can convert this project to a Maven or Gradle project so dependency management (including MySQL driver) is handled automatically.
-
-Maven quick start (recommended)
-
-- I added a `pom.xml` to the project root so you can use Maven to download the JDBC drivers and run the app.
-- Build and run with Maven from the `Bank/` folder:
+### 3. Build the Project
 
 ```bash
-cd /Users/md.arifulislam/Documents/Documents/Project/Bank
-# download dependencies and compile
-mvn -q compile
-# run the App (reads DB config from environment variables)
-mvn -q exec:java
+mvn clean compile
 ```
 
-Environment variables (optional)
+## ▶️ Running the Application
 
-Set these environment variables to configure DB connection instead of editing source:
-
-- `DB_USE_MYSQL` (true/false) — toggle MySQL usage (default `true`)
-- `DB_HOST` (default `localhost`)
-- `DB_PORT` (default `3306`)
-- `DB_NAME` (default `bankdb`)
-- `DB_USER` (default `root`)
-- `DB_PASS` (default `password`)
-- `SQLITE_URL` (if you want to change SQLite URL; default `jdbc:sqlite:bank.db`)
-
-Example (macOS / zsh):
+### Quick Start (All Platforms)
 
 ```bash
-export DB_USE_MYSQL=true
-export DB_HOST=localhost
-export DB_PORT=3306
-export DB_NAME=bankdb
-export DB_USER=root
-export DB_PASS=your_mysql_password
-mvn -q exec:java
+bash run.sh    # macOS/Linux
+run.bat        # Windows
 ```
 
-If you prefer Gradle instead of Maven tell me and I will create a `build.gradle`.
+Or manually:
 
-Images (logo and background)
------------------------------
-To show the Dhaka University building as the login header background and the university logo in the app headers,
-place image files in one of these locations (the app will try them in order):
+```bash
+mvn clean compile exec:java
+```
 
-- Background candidates (put the building picture in one of these):
-	- `~/Downloads/du_building.jpg`
-	- `~/Downloads/dhaka_building.jpg`
-	- `~/Downloads/DhakaUniversity_building.jpg`
-	- classpath resource `/images/login_bg.jpg` (copy to `images/login_bg.jpg` under the project)
+### Default Credentials
 
-- Logo candidates (put a PNG/JPG next to the SVG or as a raster image):
-	- `/Users/md.arifulislam/Downloads/Dhaka_University_logo.svg` (SVG is checked but may not render in Java ImageIO)
-	- `/Users/md.arifulislam/Downloads/Dhaka_University_logo.png`
-	- classpath resource `/images/logo.png` (copy to `images/logo.png` under the project)
+**Admin Login:**
+- Bank Number: `192117475354`
+- Password: `DhakaUniversity`
 
-Notes:
-- Java's ImageIO does not support SVG by default. If you provide an SVG logo, the app will also try `.png` or `.jpg` variants with the same base name.
-- For reliable rendering, provide PNG or JPG files and place them in `~/Downloads` or under the project's `images/` folder and re-run the app.
-- If you want me to add the images into the repository and wire them as resources, attach the building JPG and a PNG logo here and I'll commit them under `Bank/images/`.
+**Database:** SQLite (`bank.db`) is created automatically on first run.
 
-If you'd like, I can:
-- Add the two additional signup forms you mentioned and wire a selector.
-- Package everything into an executable JAR with the JDBC driver bundled.
-- Implement PIN hashing and image file copying.
+## 📁 Project Structure
 
-Tell me which next step you prefer.
-## Getting Started
+```
+OOP_Project_Bank/
+├── src/
+│   ├── App.java                      # Application entry point
+│   ├── LoginFrame.java               # Login interface (Bank Logo in ATM section)
+│   ├── EmployeeFrame.java            # Admin dashboard
+│   ├── ATMLoginFrame.java            # ATM login
+│   ├── ATMCardManagementFrame.java    # ATM card management
+│   ├── AccountDetailFrame.java        # Account details
+│   ├── NewAccountForm1.java           # Account creation
+│   ├── ExistingAccountsFrame.java     # Account browsing
+│   ├── BalanceTransferFrame.java      # Fund transfers
+│   ├── DBHelper.java                  # Database initialization
+│   ├── Account.java                   # Data model
+│   ├── TransactionRecord.java         # Transaction model
+│   ├── UIUtils.java                   # UI utilities
+│   └── ...
+├── Icon/                             # Application assets
+├── lib/                              # External libraries
+├── pom.xml                           # Maven configuration
+├── run.sh / run.bat                  # Quick start scripts
+└── README.md                         # This file
+```
 
-Welcome to the VS Code Java world. Here is a guideline to help you get started to write Java code in Visual Studio Code.
+## 💾 Database Options
 
-## Folder Structure
+### SQLite (Default)
+- **No setup required**
+- **Location:** `bank.db` in project root
+- **Automatic initialization** on first run
 
-The workspace contains two folders by default, where:
+### MySQL (Optional)
 
-- `src`: the folder to maintain sources
-- `lib`: the folder to maintain dependencies
+1. **Install MySQL:**
+   ```bash
+   # macOS
+   brew install mysql
+   
+   # Or download from dev.mysql.com
+   ```
 
-Meanwhile, the compiled output files will be generated in the `bin` folder by default.
+2. **Configure in code** (see `DBHelper.java`):
+   ```java
+   // MySQL connection
+   String url = "jdbc:mysql://localhost:3306/bank_db";
+   String user = "root";
+   String password = "your_password";
+   ```
 
-> If you want to customize the folder structure, open `.vscode/settings.json` and update the related settings there.
+3. **Run database setup:**
+   ```bash
+   mysql -u root -p < setup_database.sql
+   ```
 
-## Dependency Management
+## 🔐 Security Notes
 
-The `JAVA PROJECTS` view allows you to manage your dependencies. More details can be found [here](https://github.com/microsoft/vscode-java-dependency#manage-dependencies).
+⚠️ **Important:** This is a prototype/educational project.
+
+- **PINs are stored in plain text** - Use proper hashing (bcrypt/argon2) in production
+- **No encryption** on sensitive data - Implement TLS/SSL for production
+- **Demo credentials included** - Change immediately in production
+- **Database credentials hardcoded** - Use environment variables in production
+
+## 🎨 UI/UX Features
+
+### Modern Design Elements
+- **Glass card panels** with transparency effects
+- **Professional color scheme** (cyan, green, blue accents)
+- **Responsive layouts** that adapt to window sizes
+- **Integrated backgrounds** with bank-themed imagery
+- **Professional icons and logos** including Bank Logo in ATM section
+- **Smooth transitions** between screens
+
+## 📊 Sample Operations
+
+### Create a New Account
+
+1. Click "Proceed" on login screen
+2. Fill in account details
+3. Submit form
+4. Account created with unique account number
+
+### Issue ATM Card
+
+1. Login as Admin
+2. Navigate to "Customer Service" → "ATM Card Management"
+3. Select "Issue New Card"
+4. Choose account and set PIN
+5. Card generated and ready to use
+
+### Make a Transaction
+
+1. Login with ATM card
+2. Select "Proceed to ATM"
+3. Enter PIN
+4. Choose transaction type (Withdraw/Deposit/Balance)
+5. Complete transaction
+
+## 🐛 Troubleshooting
+
+### Maven Build Issues
+```bash
+# Clean and rebuild
+mvn clean compile
+mvn clean compile exec:java
+```
+
+### Database Connection Error
+- Verify SQLite is available: Check `bank.db` in project root
+- For MySQL: Ensure MySQL server is running
+- Check database credentials in `DBHelper.java`
+
+### Java Version Error
+```bash
+# Check Java version
+java -version
+
+# Ensure Java 11+ is installed
+# macOS: brew install openjdk@11
+```
+
+## 📝 Configuration Files
+
+| File | Purpose |
+|------|---------|
+| `pom.xml` | Maven dependencies and build config |
+| `setup_database.sql` | MySQL database schema |
+| `create_tables_mysql.sql` | MySQL table definitions |
+| `.gitignore` | Git exclusion rules (clean repository) |
+| `run.sh / run.bat` | Platform-specific run scripts |
+
+## 🤝 Contributing
+
+Contributions are welcome! Please:
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is provided as-is for educational purposes.
+
+## 👨‍💻 Author & Contact
+
+**Ariful Islam**
+- GitHub: [@Ariful-Islam1011](https://github.com/Ariful-Islam1011)
+- Repository: [OOP_Project_Bank](https://github.com/Ariful-Islam1011/OOP_Project_Bank)
+
+## 🏫 Educational Purpose
+
+Developed for learning Object-Oriented Programming principles and GUI development with Java Swing. This project demonstrates:
+- MVC architectural pattern
+- GUI framework implementation
+- Database integration
+- Event handling
+- Professional code organization
+
+---
+
+**Last Updated:** January 4, 2026  
+**Status:** Active Development ✅  
+**Repository:** Clean, Professional Structure
+
+For issues, feature requests, and feedback, please open a GitHub issue in the repository.
