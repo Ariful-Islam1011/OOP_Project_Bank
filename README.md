@@ -238,6 +238,7 @@ This project is provided as-is for educational purposes.
 **Ariful Islam**
 - GitHub: [@Ariful-Islam1011](https://github.com/Ariful-Islam1011)
 - Repository: [OOP_Project_Bank](https://github.com/Ariful-Islam1011/OOP_Project_Bank)
+Mail: mdariful-2023215997@cs.du.ac.bd  
 
 ## 🏫 Educational Purpose
 
@@ -248,10 +249,5 @@ Developed for learning Object-Oriented Programming principles and GUI developmen
 - Event handling
 - Professional code organization
 
----
-
-**Last Updated:** January 4, 2026  
-**Status:** Active Development ✅  
-**Repository:** Clean, Professional Structure
 
 For issues, feature requests, and feedback, please open a GitHub issue in the repository.
